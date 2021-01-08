@@ -1,0 +1,64 @@
+{% extends 'base_main.html' %}
+{% load static %}
+
+{% block title %}
+Сегодня
+{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger" id="success-danger" style="position: absolute; z-index: 99999;">
+    Нельзя выбрать матч без коэффициентов
+</div>
+<div class="container-fluid text-center h-100" style="max-width: 1400px;">
+    <div class="mb-2 text-white bg-dark border border-dark rounded py-2">
+        <a id="to_analyze" class="btn btn-outline-success" href="{% url 'table' %}"><svg width="1.2em" height="1.2em"
+                viewBox="0 0 16 16" class="bi bi-zoom-in" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
+                <path
+                    d="M10.344 11.742c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1 6.538 6.538 0 0 1-1.398 1.4z" />
+                <path fill-rule="evenodd"
+                    d="M6.5 3a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 0 1-1 0V7H3.5a.5.5 0 0 1 0-1H6V3.5a.5.5 0 0 1 .5-.5z" />
+            </svg> Перейти к анализу</a>
+        <a id="reset_select" class="btn btn-outline-success"><svg width="1.2em" height="1.2em" viewBox="0 0 16 16"
+                class="bi bi-trash-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z" />
+            </svg> Снять выделение</a>
+        <a id="to_next" class="btn btn-outline-success"><svg width="1.2em" height="1.2em" viewBox="0 0 16 16"
+                class="bi bi-arrow-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M4.646 9.646a.5.5 0 0 1 .708 0L8 12.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z" />
+                <path fill-rule="evenodd" d="M8 2.5a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-1 0V3a.5.5 0 0 1 .5-.5z" />
+            </svg>К следующим матчам</a>
+    </div>
+    <table class="table table-hover table-dark" id="datatable" style="width:100%; overflow-x: auto; ">
+        <thead>
+            <tr>
+                <th>Время</th>
+                <th>Чемпионат</th>
+                <th>Пари</th>
+                <th>П1</th>
+                <th>Х</th>
+                <th>П2</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Время</th>
+                <th>Чемпионат</th>
+                <th>Пари</th>
+                <th>П1</th>
+                <th>Х</th>
+                <th>П2</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+<script type="text/javascript" src="{% static 'main/js/main_next.js' %}"></script>
+{% endblock %}

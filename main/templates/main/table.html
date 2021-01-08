@@ -1,0 +1,150 @@
+{% extends 'base_main.html' %}
+{% load static %}
+
+{% block title %}
+Таблица
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container-fluid text-center h-100">
+    <div class="d-flex flex-row justify-content-start">
+        <div class="flex-fill bg-dark px-1" style="max-width: 350px;">
+            <table class="table table-sm table-bordered table-dark mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">П1</th>
+                        <th scope="col">X</th>
+                        <th scope="col">П2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Кол-во</th>
+                        <td id="statP1C"></td>
+                        <td id="statXC"></td>
+                        <td id="statP2C"></td>
+                    </tr>
+                    <tr>
+                        <th>$Ф</th>
+                        <td id="statP1F"></td>
+                        <td id="statXF"></td>
+                        <td id="statP2F"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="flex-fill d-flex flex-row justify-content-start align-items-center py-2 px-4 bg-dark">
+            <div>
+                <label for="selectCountry" class="mb-1 text-white">Фильтр по группам лиг</label>
+                <div class="d-flex flex-row">
+                    <select id="selectCountry" class="form-control border border-dark shadow mx-2"
+                        style="margin: auto; max-width: 200px;">
+                        <option>Все континенты</option>
+                        <option>Азия</option>
+                        <option>Европа</option>
+                        <option>Америка</option>
+                        <option>Австралия</option>
+                        <option>Африка</option>
+                    </select>
+                    <a href="{% url 'leagues' %}" class="link-success"><svg width="1.6em" height="1.6em" viewBox="0 0 16 16" class="bi bi-info-square-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                      </svg></a>
+                </div>
+            </div>
+        </div>
+        <div id="matchAnalyze"
+            class="d-none flex-fill d-flex flex-row justify-content-start align-items-center py-2 px-4 bg-dark">
+            <div>
+                <label for="block_matchAnalyze" class="mb-1 text-white">Выбор матча для анализа</label>
+                <div id="block_matchAnalyze" class="d-flex flex-row">
+                    <select id="selectMatch" class="form-control border border-dark shadow" style="margin: auto; "></select>
+                    <button id="deleteSelectMatch" class="btn btn-warning mx-2 px-2"><svg width="1.5em" height="1.5em"
+                            viewBox="0 0 16 16" class="bi bi-backspace-fill" fill="currentColor"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M15.683 3a2 2 0 0 0-2-2h-7.08a2 2 0 0 0-1.519.698L.241 7.35a1 1 0 0 0 0 1.302l4.843 5.65A2 2 0 0 0 6.603 15h7.08a2 2 0 0 0 2-2V3zM5.829 5.854a.5.5 0 1 1 .707-.708l2.147 2.147 2.146-2.147a.5.5 0 1 1 .707.708L9.39 8l2.146 2.146a.5.5 0 0 1-.707.708L8.683 8.707l-2.147 2.147a.5.5 0 0 1-.707-.708L7.976 8 5.829 5.854z" />
+                        </svg></button>
+                    <button id="deleteAllMatch" class="btn btn-danger text-dark px-2"><svg width="1.4em" height="1.4em" viewBox="0 0 16 16"
+                            class="bi bi-trash-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z" />
+                        </svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="table  table-hover table-dark " id="datatable" style="width:100%; max-width: 1240px; overflow-x: auto; ">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>
+                    <input id="searchLigue" class="form-control mb-1" type="text" placeholder="Чемпионат" maxlength=50
+                        autocomplete="off" />
+                </th>
+                <th>Пари</th>
+                <th>Счет</th>
+                <th>1Т</th>
+                <th>
+                    <input id="col5_filter" data-column="5" type="text" name="filter_p1"
+                        class="form-control mb-1 column_filter px-1" placeholder="П1" value="{{ p1 }}" maxlength=5
+                        autocomplete="off">
+                </th>
+                <th>
+                    <input id="col6_filter" data-column="6" type="text" name="filter_x"
+                        class="form-control mb-1 column_filter px-1" placeholder="X" value="{{ x }}" maxlength=5
+                        autocomplete="off">
+                </th>
+                <th>
+                    <input id="col7_filter" data-column="7" type="text" name="filter_p2"
+                        class="form-control mb-1 column_filter px-1" placeholder="П2" value="{{ p2 }}" maxlength=5
+                        autocomplete="off">
+                </th>
+                <th>ТБ 2.5</th>
+                <th>ТМ 2.5</th>
+                <th>ОЗ</th>
+                <th>П1/П1</th>
+                <th>Н/П1</th>
+                <th>П2/П1</th>
+                <th>П1/Н</th>
+                <th>П2/Н</th>
+                <th>П1/П2</th>
+                <th>Н/П2</th>
+                <th>П2/П2</th>
+                <th>Н/Н</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr class="small">
+                <th>Дата</th>
+                <th>Чемпионат</th>
+                <th>Пари</th>
+                <th>Счет</th>
+                <th>1Т</th>
+                <th id="fs_p1">П1</th>
+                <th id="fs_x">Х</th>
+                <th id="fs_p2">П2</th>
+                <th id="fs_tb">ТБ 2.5</th>
+                <th id="fs_tm">ТМ 2.5</th>
+                <th id="fs_oz">ОЗ</th>
+                <th id="fs_p1p1">П1/П1</th>
+                <th id="fs_xp1">Н/П1</th>
+                <th id="fs_p2p1">П2/П1</th>
+                <th id="fs_p1x">П1/Н</th>
+                <th id="fs_p2x">П2/Н</th>
+                <th id="fs_p1p2">П1/П2</th>
+                <th id="fs_xp2">Н/П2</th>
+                <th id="fs_p2p2">П2/П2</th>
+                <th id="fs_xx">Н/Н</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script type="text/javascript" src="{% static 'main/js/main_table.js' %}"></script>
+{% endblock %}

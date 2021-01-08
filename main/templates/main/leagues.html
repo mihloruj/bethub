@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title%}
+Группы лиг
+{% endblock%}
+
+
+{% block content %}
+<div class="container-fluid p-2 bg-secondary" style="min-height: 100vh; max-width: 100%;">
+    {% for k,v in leagues.items %}
+    <div class="bg-dark text-white border border-dark rounded text-center p-4 mb-2">
+        <h4>{{k}}</h4>{{v}}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+
+{% block script %}
+{% endblock %}

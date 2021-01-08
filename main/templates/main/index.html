@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title%}
+BETHUB - Главная
+{% endblock%}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="bg-dark bg-gradient">
+    <div>
+        <nav class="navbar  navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="">BETHUB</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="nav navbar-nav" style="margin-right: auto;">
+                        <a class="nav-link" href="#info">О НАС</a>
+                        <a class="nav-link" href="#start">КАК НАЧАТЬ</a>
+                        <a class="nav-link disabled" href="#payment">ОПЛАТА</a>
+                    </div>
+                    <ul class="nav navbar-nav">
+                        {% if not user.is_authenticated %}
+                        <li class="nav-item mx-2 mb-1">
+                            <a type="button" class="btn btn-outline-light"  href="{% url 'register' %}">Регистрация</a>
+                        </li>
+                        <li class="nav-item mx-2">
+                            <a type="button" class="btn btn-outline-light"  href="{% url 'login' %}">Войти</a>
+                        </li>
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                        <li class="nav-item mx-2 mb-1">
+                            <h3 class="text-white">{{user.username}}</h3>
+                        </li>
+                        <li class="nav-item mx-2 mb-1">
+                            <a type="button" class="btn btn-outline-light"  href="{% url 'table' %}">Таблица</a>
+                        </li>
+                        <li class="nav-item mx-2">
+                            <a type="button" class="btn btn-outline-secondary"  href="{% url 'logout' %}">Выйти</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div id="info" class="container-xl" style="height: 95vh;">
+        <div class="info_main">
+            <h2 class="text-light text-center">Информация о нас</h2>
+        </div>
+    </div>
+    <div id="start" class="container-xl" style="min-height: 100vh;">
+        <div class="info_main">
+            <h2 class="text-light mb-3 text-center">Как начать пользоваться?</h2>
+            <div class="text-center mb-5">
+                <div class="mb-2">
+                    <h5 class="step">1-й шаг </h5> <span class="font-weight-lighter text-light">Зарегистрироваться на сайте</span>
+                </div>
+                <div class="mb-2">
+                    <h5 class="step">2-й шаг </h5> <span class="font-weight-lighter text-light">Выбрать желаемую подписку</span>
+                </div>
+                <div class="mb-2">
+                    <h5 class="step">3-й шаг </h5> <span class="font-weight-lighter text-light">Оплатить и начать
+                        пользоваться сервисом!</span>
+                </div>
+            </div>
+            <div class="text-center mb-2">
+                <a type="button" class="btn btn-outline-success btn-lg mb-1"
+                    href="{% url 'register' %}">Зарегистрироваться</a>
+                <div>
+                    <a href="{% url 'login' %}" class="ml-2 link-success">Уже есть аккаунт?</a>
+                </div>
+            </div>
+            <hr size="2">
+            <h4 class="mb-3 text-white text-center">Стоимость подписок</h4>
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                <div class="col">
+                    <div class="card text-white bg-secondary h-100 text-center">
+                        <h5 class="card-header">1 месяц</h5>
+                        <div class="card-body">
+                            <h1><s>10$</s> 0$</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card text-white bg-secondary h-100 text-center">
+                        <h5 class="card-header">3 месяца</h5>
+                        <div class="card-body">
+                            <h1><s>25$</s> 0$</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card text-white bg-success h-100 text-center">
+                        <h5 class="card-header">6 месяцев</h5>
+                        <div class="card-body">
+                            <h1><s>45$</s> 0$</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card bg-warning h-100 text-center">
+                        <h5 class="card-header">12 месяцев</h5>
+                        <div class="card-body">
+                            <h1><s>89$</s> 0$</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div id="payment" class="container-xl" style="height: 90vh;">
+        <div class="info_main">
+            <h2 class="text-light text-center">Безопасная и удобная оплата</h2>
+        </div>
+    </div> -->
+</div>
+<footer class="footer">
+    <div class="container">
+        <p class="text-muted mb-0 text-center">BETHUB 2021 by Dolbaeb</p>
+    </div>
+</footer>
+{% endblock %}
+
+
+{% block script %}
+{% endblock %}

@@ -1,0 +1,9 @@
+/.vscode
+/base/settings.py
+/base/__pycache__
+/loggining/__pycache__
+/loggining/migrations
+/main/__pycache__
+/main/migrations
+/Scripts/__pycache__
+/Scripts/*.log
