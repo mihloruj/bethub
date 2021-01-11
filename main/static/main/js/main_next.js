@@ -26,7 +26,7 @@ function setupData() {
             "<'row'<'col-sm-2'><'col-sm-8 text-center'i><'col-sm-2'>>t",
         'rowId': 'match_name',
         'select': {
-            'style': 'multi'
+            'style': 'multi+shift'
         },
         "columns": [
             { "data": "time", "width": "80px" },

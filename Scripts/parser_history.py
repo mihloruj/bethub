@@ -1,4 +1,4 @@
-import requests, json, psycopg2
+import requests, json, psycopg2, os
 import datetime as dt
 from multiprocessing import Pool
 from bs4 import BeautifulSoup
@@ -25,14 +25,30 @@ def getAllLinks(url):
         return None
 
 
+def normalizeLeagueName(name):
+    ex = [
+        '2021/2022',
+        '2020/2021',
+        '2022',
+        '2021',
+        '2020',
+        '/'
+    ]
+    for e in ex:
+        name = name.replace(e, '')
+    return name.strip()
+
+
 def getDataMatch(link):
     response = requests.get(link, headers=HEADERS).text
     soup = BeautifulSoup(response, 'html.parser')
-    liga_name = soup.find('h1', 'wrap-section__header__title').find('a').get_text()
+    elements = soup.find_all('a', attrs={'class':'list-breadcrumb__item__in'})
+    liga_name = elements[-2].text+':'+elements[-1].text
+    liga_name = normalizeLeagueName(liga_name)
     match_name = soup.find('span', 'list-breadcrumb__item__in').get_text()
-    date = str(soup.find('p', 'list-details__item__date').get('data-dt')).split(',')
-    match_date = '-'.join(date[0:3])
-    match_time = ':'.join(date[3:5])
+    d = str(soup.find('p', 'list-details__item__date').get('data-dt')).split(',')
+    date = dt.date(int(d[2]), int(d[1]), int(d[0])).strftime("%d.%m.%Y")
+    match_date = date
     match_score = soup.find('p', 'list-details__item__score').get_text()
     match_score_fh = soup.find('h2', 'list-details__item__partial').get_text().split(',')[0].replace('(', '')
     if match_score_fh.strip() != '':
@@ -40,7 +56,6 @@ def getDataMatch(link):
             "liga_name": liga_name,
             "match_name": match_name,
             "match_date": match_date,
-            "match_time": match_time,
             "match_score": match_score,
             "match_score_fh": match_score_fh
         }
@@ -89,11 +104,11 @@ def getDataFromFile():
             s = f.read()[:-1]
             s = str('[' + s[:-1] + ']') 
             data = json.loads(s)
+        os.remove(FILENAME)
         return data
     except Exception as e:
         print('ERROR: load data from file is failed', e)
         return None
-    
 
 
 def pullDataToDB():
@@ -105,13 +120,13 @@ def pullDataToDB():
                                         database = DB_NAME)
         print("INFO: connection is opened")
         data = getDataFromFile()
-        print(len(data))
+        cursor = connection.cursor()
         if data != None:
-            cursor = connection.cursor()
             for d in data:
-                cursor.execute('INSERT INTO matches_history(match_link, liga_name, match_name, match_date, match_time, match_score, match_score_fh, c_p1, c_x, c_p2) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);', 
-                (d['link'],d['liga_name'],d['match_name'],d['match_date'],d['match_time'],d['match_score'],d['match_score_fh'],d['p1'],d['x'],d['p2']))
+                cursor.execute('INSERT INTO main_match(date, league_name, match_name, total_score, first_half_score, coef_p1, coef_x, coef_p2) VALUES (%s,%s,%s,%s,%s,%s,%s,%s);', 
+                (d['match_date'],d['liga_name'],d['match_name'],d['match_score'],d['match_score_fh'],d['p1'],d['x'],d['p2']))
             connection.commit()
+            print('INSERT', len(data))
             print("INFO: data loaded successfully")
     except (Exception, psycopg2.Error) as error :
         print ("ERROR: error while connecting to PostgreSQL", error)
@@ -123,7 +138,7 @@ def pullDataToDB():
 
 
 if __name__ == "__main__":
-    print('INFO: start script', str(dt.datetime.now().date()))
+    print('INFO: start script', str(dt.datetime.now()))
     start = dt.datetime.now()
     links = getAllLinks('https://www.betexplorer.com/results/soccer/')
     if links != None and len(links) > 0:

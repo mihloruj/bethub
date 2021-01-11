@@ -8,16 +8,17 @@ import os
 from settings import *
 
 FILENAME = 'results_next_matches_%s.csv' % str(dt.datetime.now())
+FILENAME_B = 'bad_next_matches_%s.csv' % str(dt.datetime.now())
 
 
 # Достаем данные из файла, куда сложили работу воркеры, после удаляем файл
-def getDataFromFile():
+def getDataFromFile(file):
     try:
-        with open(FILENAME) as f:
+        with open(file) as f:
             s = f.read()[:-1]
             s = str('[' + s[:-1] + ']') 
             data = json.loads(s)
-        os.remove(FILENAME)
+        os.remove(file)
         return data
     except Exception as e:
         print('ERROR: load data from file is failed', e)
@@ -60,7 +61,8 @@ def updateDataInDB():
                                         port = DB_PORT,
                                         database = DB_NAME)
         print("INFO: connection is opened")
-        data = getDataFromFile()
+        data = getDataFromFile(FILENAME)
+        data_b = getDataFromFile(FILENAME_B)
         cursor = connection.cursor()
         if data is not None:
             for d in data:
@@ -69,6 +71,13 @@ def updateDataInDB():
             connection.commit()
             print('UPDATE', len(data)) 
             print("INFO: data loaded successfully")
+        if data_b is not None:
+            for d in data_b:
+                cursor.execute('DELETE FROM main_nextmatch WHERE id = %s;', 
+                (d['id'],))
+            connection.commit()
+            print('DELETE', len(data_b)) 
+            print("INFO: bad matches deleted successfully")
     except (Exception, psycopg2.Error) as error :
         print ("ERROR: error while connecting to PostgreSQL", error)
     finally:
@@ -107,6 +116,12 @@ def getResult(match):
         else:
             print('ERROR: it is impossible to get the result, the page is not available, code', response.status_code)
     except Exception as e:
+        bad_match_data = {
+            "id": id
+        }
+        dataJson = json.dumps(bad_match_data)
+        with open(FILENAME_B, 'a') as output_file:
+            output_file.write(str(dataJson)+',\n')
         print('SKIP: match is huinya', link, e ) 
 
 

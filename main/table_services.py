@@ -119,14 +119,14 @@ def getMatchesWithCountry(p1, x, p2, p1_max, x_max, p2_max, liga, country):
                                 coef_x__lt=x_max, coef_x__gte=x,
                                 coef_p2__lt=p2_max, coef_p2__gte=p2, 
                                 league_name__istartswith=liga,
-                                league_name__in = getSelectedLeagues(country))
+                                league_name__in = getSelectedLeagues(country)).order_by('-id')
 
 
 def getMatchesWithoutCountry(p1, x, p2, p1_max, x_max, p2_max, liga):
     return Match.objects.filter(coef_p1__lt=p1_max, coef_p1__gte=p1, 
                                 coef_x__lt=x_max, coef_x__gte=x,
                                 coef_p2__lt=p2_max, coef_p2__gte=p2, 
-                                league_name__istartswith=liga)
+                                league_name__istartswith=liga).order_by('-id')
 
 
 def getMatches(coefP1, coefX, coefP2, leagueName, country):

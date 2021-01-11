@@ -76,7 +76,6 @@ function setupData() {
         "language": {
             "decimal": "",
             "emptyTable": "Матчей не найдено",
-            // "info": "Показано с _START_ по _END_ из _TOTAL_ матчей",
             "info": "Показано _TOTAL_ матчей",
             "infoEmpty": "",
             "infoFiltered": "(Фильтр на основе _MAX_ матчей)",
@@ -120,8 +119,8 @@ $(document).ready(function () {
     $('#selectCountry').change(function () {
         changeURLAjax();
     });
-    $('#selectMatch').change(function () {
-        var opt = $(this).children("option:selected")
+    function reloadValSelect() {
+        var opt = $('#selectMatch').children("option:selected")
         if (opt.val() == 0) {
             $("#col5_filter").val('');
             $("#col6_filter").val('');
@@ -132,6 +131,25 @@ $(document).ready(function () {
             $("#col7_filter").val(opt.attr('cp2'));
         }
         changeURLAjax();
+    };
+    var scrollTimer = null;
+    $('#selectMatch').on('wheel', function (e) {
+        e.preventDefault();
+        var len = this.length,
+        i = this.selectedIndex;
+        if (e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0) {
+            this.selectedIndex = --i == -1 ? len - 1 : i;
+        } else {
+            this.selectedIndex = ++i % len;
+        }
+        if (scrollTimer) {
+            clearTimeout(scrollTimer);   // clear any previous pending timer
+        }
+        scrollTimer = setTimeout(reloadValSelect, 300);   // set new timer
+        //reloadValSelect();
+    });
+    $('#selectMatch').change(function () {
+        reloadValSelect();
     });
     $('#deleteSelectMatch').click(function () {
         var opt = $('#selectMatch').children("option:selected")
