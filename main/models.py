@@ -24,6 +24,7 @@ class NextMatch(models.Model):
     coef_p1 = models.DecimalField( max_digits=5, decimal_places=2, blank=True, null=True)
     coef_x = models.DecimalField( max_digits=5, decimal_places=2, blank=True, null=True)
     coef_p2 = models.DecimalField( max_digits=5, decimal_places=2, blank=True, null=True)
+    old = models.BooleanField(default=False)
 
 
     def __str__(self):

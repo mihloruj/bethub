@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'loggining/css/loggining.css' %}">
+<script src="https://kit.fontawesome.com/8a28303197.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block title %}
+Профиль
+{% endblock %}
+
+{% block content %}
+<div class="pt-4 px-3 min-vh-100" style="background-color: #607992;">
+    <div class="d-flex justify-content-between">
+        <a href="{% url 'index' %}" class="btn btn-lg btn-custom-dark shadow text-white ml-lg-5"><i class="fas fa-arrow-alt-circle-left mr-2"></i>На главную</a>
+        <a href="{% url 'table' %}" class="btn btn-lg btn-custom-dark shadow text-white mr-lg-5">К таблице <i class="fas fa-arrow-alt-circle-right ml-2"></i></a>
+    </div>
+    <div class="bg-white rounded shadow mx-auto mt-4 px-4 py-3" style="max-width: 600px;">
+
+        <div class="mb-2 text-center">
+            <div class="h-100 w-auto mx-auto py-2">
+                <i class="fas fa-user-circle fa-3x mb-1" style="color: #34414e;"></i>
+                <h4 class="font-weight-light mb-0">Личный кабинет</h4>
+            </div>
+        </div>
+        <div class="mb-2">
+            <div class="p-3 h-100">
+                <h5 class="text-center">Информация об аккаунте</h5>
+                <div class="mb-2">
+                    <span class="h6 mr-2">Ваш ID:</span> <span id="pi_id"> {{data.id}}</span>
+                </div>
+                <div class="mb-2">
+                    <span class="h6 mr-2">Ваш логин:</span> <span id="pi_login"> {{data.name}}</span>
+                </div>
+                <div class="mb-2">
+                    <span class="h6 mr-2">Ваша почта:</span> <span id="pi_email"> {{data.email}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="mb-2">
+            <div class="p-3 h-100 ">
+                <h5 class="text-center">Информация о подписке</h5>
+                <div class="mb-2">
+                    <span class="h6 mr-2">Тип подписки:</span><span id="ps_type"> {{data.type}} </span>
+                </div>
+                <div class="mb-2">
+                    <span class="h6 mr-2">Заканчивается:</span><span id="ps_endtime"> {{data.endtime}} </span>
+                </div>
+                <div class="mb-2">
+                    <a class="btn btn-custom-dark text-white" href="{% url 'choicesub' %}">{% if data.isSub %}Продлить подписку{% else %}Оформить подписку{% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mb-2">
+            <div class="p-3 h-100">
+                <h5 class="text-center">Смена пароля</h5>
+                <form method="post" class="mx-auto text-center" style="max-width: 450px;">
+                    {% csrf_token %}
+                    <div class="input-group mb-4">
+                        {{ form.old_password }}
+                    </div>
+                    <div class="input-group mb-2">
+                        {{ form.new_password1 }}
+                    </div>
+                    <div class="input-group mb-3">
+                        {{ form.new_password2 }}
+                    </div>
+                    <div class="input-group px-4 mb-2">
+                        <button type="submit" class="btn btn-custom-dark text-white btn-block">Сменить пароль</button>
+                    </div>
+                    <a href="{% url 'reset_password' %}">Забыли пароль?</a> 
+
+                    {% for message in messages %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                    <div class="alert alert-success mt-3 mb-0" id="success-danger">
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                    <div class="alert alert-danger mt-3 mb-0" id="success-danger">
+                        {{ message }}
+                    </div>
+                    {% endif %}
+
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script type="text/javascript">
+    var form_fields = document.getElementsByTagName('input')
+    form_fields[1].placeholder = 'Старый пароль...';
+    form_fields[2].placeholder = 'Новый пароль...';
+    form_fields[3].placeholder = 'Повторите пароль...';
+
+
+    for (var field in form_fields) {
+        form_fields[field].className += ' form-control'
+    }
+
+    $(window).on("load", info);
+
+
+    function info() {
+        $("#success-danger").fadeTo(10000, 500).slideUp(500, function () {
+            $("#success-danger").slideUp(500);
+        });
+    }
+</script>
+
+{% endblock %}

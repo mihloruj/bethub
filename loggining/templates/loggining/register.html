@@ -1,42 +1,55 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'loggining/css/loggining.css' %}">
+<script src="https://kit.fontawesome.com/8a28303197.js" crossorigin="anonymous"></script>
+{% endblock %}
 
 {% block title%}
-    Регистрация
+Регистрация
 {% endblock%}
 
 {% block content%}
-<div class="text-center bg-dark bg-gradient pt-4" style="height: 100vh;">
-    <form class="form-signin" method="POST" action="" style="max-width: 330px; margin: auto;">
+<div class="pt-4 px-3 min-vh-100" style="background-color: #607992;">
+    <a href="{% url 'index' %}" class="btn btn-lg btn-custom-dark shadow text-white ml-lg-5"><i
+            class="fas fa-arrow-alt-circle-left mr-2"></i>На главную</a>
+    <form class="form-signin text-center bg-white rounded shadow mx-auto mt-4 px-5 py-3" method="POST" action=""
+        style="max-width: 460px;">
         {% csrf_token%}
-        <h1 class="h3 mb-3 font-weight-normal text-white">Регистрация</h1>
+        <i class="fas fa-user-plus fa-3x mb-1" style="color: #34414e;"></i>
+        <h1 class="h3 mb-3 font-weight-normal">Регистрация</h1>
         <div class="input-group mb-2">
             {{ form.username }}
         </div>
-        <div class="input-group mb-2">
+        <div class="input-group mb-3">
             {{ form.email }}
         </div>
         <div class="input-group mb-2">
             {{ form.password1 }}
         </div>
-        <div id="passwordHelpBlock" class="form-text mb-2">
-            <ul class="list-group">
-                <li >Ваш пароль должен содержать 8-25 символов</li>
-                <li >Должен содержать заглавные буквы и цифры</li>
-                <li >Не должен содержать пробелов</li>
-            </ul>
-        </div>
         <div class="input-group mb-3">
             {{ form.password2 }}
         </div>
-        <button class="btn btn-lg btn-outline-success btn-block mb-2" type="submit">Создать аккаунт</button>
+        <div id="passwordHelpBlock" class="form-text mb-3">
+            <ul class="list-group">
+                <li class="list-group-item" id="length">От 8 до 25 символов</li>
+                <li class="list-group-item" id="number">Содержит цифры</li>
+                <li class="list-group-item" id="letter">Содержит буквы</li>
+                <li class="list-group-item" id="same">Пароли не совпадают</li>
+            </ul>
+        </div>
+        <div class="px-lg-4">
+            <button disabled id="create_account" class="btn btn-lg btn-block btn-custom-dark mb-2 text-white" type="submit">Создать аккаунт</button>
+        </div>
         {% if form.errors %}
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <div class="alert alert-danger">
-                        <strong>{{ error|escape }}</strong>
-                    </div>
-                {% endfor %}
-            {% endfor %}
+        {% for field in form %}
+        {% for error in field.errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+        {% endfor %}
+        {% endfor %}
         {% endif %}
         <div>
             <a href="{% url 'login' %}" class="ml-2 link-success">Уже есть аккаунт?</a>
@@ -49,14 +62,100 @@
 {% block script %}
 <script type="text/javascript">
     var form_fields = document.getElementsByTagName('input')
-    form_fields[1].placeholder='Логин...';
-    form_fields[2].placeholder='Email...';
-    form_fields[3].placeholder='Введите пароль...';
-    form_fields[4].placeholder='Повторите пароль...';
+    form_fields[1].placeholder = 'Логин...';
+    form_fields[2].placeholder = 'Email...';
+    form_fields[3].placeholder = 'Пароль...';
+    form_fields[4].placeholder = 'Повторите пароль...';
 
 
-    for (var field in form_fields){	
+    for (var field in form_fields) {
         form_fields[field].className += ' form-control'
+    }
+
+    var pswd1 = document.getElementById("id_password1");
+    var pswd2 = document.getElementById("id_password2");
+    var letter = document.getElementById("letter");
+    var number = document.getElementById("number");
+    var length = document.getElementById("length");
+    var same = document.getElementById("same");
+    var btn = document.getElementById("create_account");
+
+    var b_letter = false;
+    var b_number = false;
+    var b_length = false;
+    var b_same = false;
+
+
+    // When the user starts to type something inside the password field
+    pswd1.onkeyup = function () {
+        // Validate lowercase letters
+        var lowerCaseLetters = /[a-z]/g;
+        if (pswd1.value.match(lowerCaseLetters)) {
+            letter.classList.remove("help-pswd-bad");
+            letter.classList.add("help-pswd-ok");
+            b_letter = true;
+        } else {
+            letter.classList.remove("help-pswd-ok");
+            letter.classList.add("help-pswd-bad");
+            b_letter = false;
+        }
+
+        // Validate numbers
+        var numbers = /[0-9]/g;
+        if (pswd1.value.match(numbers)) {
+            number.classList.remove("help-pswd-bad");
+            number.classList.add("help-pswd-ok");
+            b_number = true;
+        } else {
+            number.classList.remove("help-pswd-ok");
+            number.classList.add("help-pswd-bad");
+            b_number = false;
+        }
+
+        // Validate length
+        if (pswd1.value.length >= 8 & pswd1.value.length <= 25) {
+            length.classList.remove("help-pswd-bad");
+            length.classList.add("help-pswd-ok");
+            b_length = true;
+        } else {
+            length.classList.remove("help-pswd-ok");
+            length.classList.add("help-pswd-bad");
+            b_length = false;
+        }
+
+        // Validate same pswd
+        if (pswd1.value == pswd2.value & (pswd1.value.length >= 8 & pswd2.value.length >= 8)){
+            same.classList.remove("help-pswd-bad");
+            same.classList.add("help-pswd-ok");
+            b_same = true;
+        } else {
+            same.classList.remove("help-pswd-ok");
+            same.classList.add("help-pswd-bad");
+            b_same = false;
+        }
+
+        if (b_letter & b_length & b_number & b_same){
+            btn.disabled = false
+        } else {
+            btn.disabled = true
+        }
+    }
+    pswd2.onkeyup = function () {
+        if (pswd1.value == pswd2.value & (pswd1.value.length >= 8 & pswd2.value.length >= 8)){
+            same.classList.remove("help-pswd-bad");
+            same.classList.add("help-pswd-ok");
+            b_same = true;
+        } else {
+            same.classList.remove("help-pswd-ok");
+            same.classList.add("help-pswd-bad");
+            b_same = false;
+        }
+
+        if (b_letter & b_length & b_number & b_same){
+            btn.disabled = false
+        } else {
+            btn.disabled = true
+        }
     }
 </script>
 {% endblock %}

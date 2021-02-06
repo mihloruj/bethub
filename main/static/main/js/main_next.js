@@ -2,33 +2,32 @@ $("#success-danger").hide();
 
 function setupData() {
     var table = $('#datatable').DataTable({
-        "ajax": {
-            "url": "/ajax/next_matches",
+        ajax: {
+            "url": "/ajax/0/next_matches",
             "data": "",
             "dataType": "json",
             "dataSrc": "data",
             "contentType": "application/json"
         },
-        "paging": true,
-        "saveState": true,
-        "ordering": false,
-        "deferRender": true,
-        "scrollY": '60vh',
-        "scrollX": true,
-        "scrollCollapse": true,
+        scrollResize: true,
+        paging: true,
+        saveState: true,
+        ordering: false,
+        deferRender: true,
+        scrollY: 100,
+        scrollX: true,
+        scrollCollapse: true,
         scroller: {
             loadingIndicator: true,
             displayBuffer: 2000
         },
-        "searching": false,
-        "fixedHeader": true,
-        "dom": "<'row'<'col-sm-2'l><'col-sm-2'><'col-sm-4'><'col-sm-4'p>>" +
-            "<'row'<'col-sm-2'><'col-sm-8 text-center'i><'col-sm-2'>>t",
-        'rowId': 'match_name',
-        'select': {
+        searching: false,
+        dom: "it",
+        rowId: 'match_name',
+        select: {
             'style': 'multi+shift'
         },
-        "columns": [
+        columns: [
             { "data": "time", "width": "80px" },
             { "data": "league_name" },
             { "data": "match_name" },
@@ -36,12 +35,10 @@ function setupData() {
             { "data": "coef_x", "width": "60px" },
             { "data": "coef_p2", "width": "60px" }
         ],
-        "language": {
+        language: {
             "decimal": "",
             "emptyTable": "Нет данных",
-            "info": "Сегодня _TOTAL_ матчей.",
             "infoEmpty": "",
-            "infoFiltered": "(Фильтр на основе _MAX_ матчей)",
             "infoPostFix": "",
             "thousands": ",",
             "lengthMenu": "Показывать по _MENU_ матчей",
@@ -49,16 +46,6 @@ function setupData() {
             "processing": "Обработка...",
             "search": "Поиск:",
             "zeroRecords": "Таких матчей нет",
-            "paginate": {
-                "first": "Первая",
-                "last": "Последняя",
-                "next": "Вперед",
-                "previous": "Назад"
-            },
-            "aria": {
-                "sortAscending": ": activate to sort column ascending",
-                "sortDescending": ": activate to sort column descending"
-            },
             'select': {
                 'rows': {
                     _: "Выбрано матчей - %d",
@@ -66,7 +53,13 @@ function setupData() {
                 }
             }
         },
-        "lengthMenu": [[50, -1], [50, 'Все']]
+        'infoCallback': function (settings, start, end, max, total, pre) {
+            if (oldMatches) {
+                return "Вчера было " + total + " матчей."
+            } else {
+                return "Сегодня ожидается " + total + " матчей."
+            }
+        }
     })
 
     table
@@ -77,8 +70,9 @@ function setupData() {
                     selected.eq(i).addClass('table-success text-dark')
                 } else {
                     table.row(selected.eq(i)).deselect()
-                    $("#success-danger").fadeTo(2000, 500).slideUp(500, function () {
-                        $("#success-danger").slideUp(500);
+                    $("#success-danger").removeClass('d-none')
+                    $("#success-danger").fadeTo(2000, 500).slideUp(300, function () {
+                        $("#success-danger").slideUp(300);
                     });
                 }
             }
@@ -87,32 +81,48 @@ function setupData() {
             table.rows({ selected: false }).nodes().to$().removeClass('table-success text-dark')
         });
 
-    $('#datatable_info').addClass('text-white bg-dark border border-dark rounded py-2');
-    $('.select_item').addClass('text-white');
+    $('#datatable_info').addClass('text-center mb-2');
 }
 $(window).on("load", setupData);
 
-$(document).ready(function () {
-    $(to_analyze).click(function () {
-        reloadMathcesInLS();
-    });
-    $(reset_select).click(function () {
-        $('#datatable').DataTable().rows({ selected: true }).deselect()
-        localStorage.clear()
-    });
-    $(to_next).click(function () {
-        toNextMatches();
-    });
+$(to_analyze).click(function () {
+    reloadMathcesInLS();
 });
 
+$(reset_select).click(function () {
+    $('#datatable').DataTable().rows({ selected: true }).deselect()
+    localStorage.clear()
+});
+
+$(to_next).click(function () {
+    toNextMatches();
+});
+
+var oldMatches = false
+$(get_old_matches).click(function () {
+    if (oldMatches) {
+        oldMatches = false;
+        changeAJAXURL('/ajax/0/next_matches');
+        $(get_old_matches).removeClass('btn-success').addClass('btn-custom-dark');
+        $(to_next).removeClass('disabled');
+    } else {
+        oldMatches = true;
+        changeAJAXURL('/ajax/1/next_matches');
+        $(get_old_matches).removeClass('btn-custom-dark').addClass('btn-success');
+        $(to_next).addClass('disabled');
+    }
+});
+
+function changeAJAXURL(url) {
+    $('#datatable').DataTable().ajax.url(url).load();
+    $('#datatable').DataTable().draw().scroller.toPosition(0, false);
+}
+
 function toNextMatches() {
-    var time = new Date().toLocaleTimeString().slice(0, -3)
     var table = $('#datatable').DataTable();
     var rows = table.rows().nodes().to$()
     for (i = 0; i < rows.length; i++) {
-        var rowTime = rows.eq(i).children().eq(0).text()
-        if (rowTime.split(':')[0] == '00') { rowTime = rowTime.replace('00:', '24:') }
-        if (rowTime > time) {
+        if (rows.eq(i).children().eq(4).text() == '') {
             table.row(i).scrollTo();
             break;
         }
@@ -126,9 +136,7 @@ function reloadMathcesInLS() {
     fulldata = []
     for (i = 0; i < matches.count(); i++) {
         fulldata.push(matches[i])
-        console.log('Add match to LS')
     }
-    console.log(JSON.stringify(fulldata))
     if (fulldata.length > 0) {
         localStorage.setItem('matchesForAnalyze', JSON.stringify(fulldata))
     }
@@ -139,5 +147,7 @@ function changeURLAjax() {
 }
 
 setInterval(function () {
-    changeURLAjax();
+    if (!oldMatches) {
+        changeURLAjax();
+    }
 }, 5000);

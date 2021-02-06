@@ -1,18 +1,15 @@
 import json, datetime as dt
 from loggining.models import UserSub
-from loggining.forms import UserChangePassword
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 
-from .table_services import getStatResponse, getMatches, getLastMatches
-from .next_services import getMatchesNext
+from .table_services import getStatResponse, getMatches, getLastMatches, getLastMatchesByLigname
+from .next_services import getMatchesNext, getOldMatchesNext
 from .leagues import LEAGUES
 
 
@@ -55,35 +52,35 @@ def mainListLeagues(request):
     })
 
 
-@login_required(login_url='login')
-@user_passes_test(user_is_subscribed, login_url='choicesub', redirect_field_name=None)
-def mainProfile(request):
-    user = request.user
-    userInfo = User.objects.get(id=user.id)
-    subInfo = UserSub.objects.get(user=user)
-    data = {
-        "id": userInfo.id,
-        "name": userInfo.username,
-        "email": userInfo.email,
-        "endtime": subInfo.date_end
-    }
+# @login_required(login_url='login')
+# @user_passes_test(user_is_subscribed, login_url='choicesub', redirect_field_name=None)
+# def mainProfile(request):
+#     user = request.user
+#     userInfo = User.objects.get(id=user.id)
+#     subInfo = UserSub.objects.get(user=user)
+#     data = {
+#         "id": userInfo.id,
+#         "name": userInfo.username,
+#         "email": userInfo.email,
+#         "endtime": subInfo.date_end
+#     }
     
-    if request.method == 'POST':
-        form = UserChangePassword(request.user, request.POST)
-        if form.is_valid():
-            form.save()
-            update_session_auth_hash(request, form.user)
-            messages.success(request, 'Пароль успешно изменен!')
-            return redirect('profile')
-        else:
-            messages.error(request, 'Введенные данные некорректны')
-            return redirect('profile')
-    else:
-        form = UserChangePassword(request.user)
+#     if request.method == 'POST':
+#         form = UserChangePassword(request.user, request.POST)
+#         if form.is_valid():
+#             form.save()
+#             update_session_auth_hash(request, form.user)
+#             messages.success(request, 'Пароль успешно изменен!')
+#             return redirect('profile')
+#         else:
+#             messages.error(request, 'Введенные данные некорректны')
+#             return redirect('profile')
+#     else:
+#         form = UserChangePassword(request.user)
 
-    return render(request, 'main/profile.html', context={
-        "data": data,
-        "form": form })
+#     return render(request, 'main/profile.html', context={
+#         "data": data,
+#         "form": form })
 
 
 #
@@ -103,6 +100,8 @@ def ajaxTableMatches(request):
         #and country == 'Все континенты'
         if coef_p1 == '' and coef_p2 == '' and coef_x == '' and ligname == '' or country == None:
             matches = getLastMatches(country)
+        elif coef_p1 == '' and coef_p2 == '' and coef_x == '' or country == None:
+            matches = getLastMatchesByLigname(country, ligname)
         else:    
             matches = getMatches(coef_p1, coef_x, coef_p2, ligname, country)
         matches_list = serializers.serialize('json', matches)
@@ -135,12 +134,15 @@ def ajaxStatMatch(request):
 # Получение матчей для линии на сегодня
 @login_required(login_url='login')
 @user_passes_test(user_is_subscribed, login_url='choicesub', redirect_field_name=None)
-def ajaxNextMatches(request):
+def ajaxNextMatches(request, old):
     if request.is_ajax and request.method == "GET":
+        if old == 1:
+            m = getOldMatchesNext()
+        else:
             m = getMatchesNext()
-            matches_list = serializers.serialize('json', m)
-            answer = []
-            for j in json.loads(matches_list):
-                answer.append(j['fields'])
-            return JsonResponse({'data': answer}, status=200)    
+        matches_list = serializers.serialize('json', m)
+        answer = []
+        for j in json.loads(matches_list):
+            answer.append(j['fields'])
+        return JsonResponse({'data': answer}, status=200)    
     return JsonResponse({}, status = 400)

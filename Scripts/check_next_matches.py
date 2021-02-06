@@ -36,7 +36,7 @@ def getMatchesFromDB():
         print("INFO: connection is opened")
         curDate = dt.datetime.now().strftime('%H:%M')
         cursor = connection.cursor(cursor_factory=DictCursor)
-        cursor.execute('SELECT * FROM main_nextmatch where time = %s;', (curDate, ))
+        cursor.execute('SELECT * FROM main_nextmatch where time = %s and old is false;', (curDate, ))
         records = cursor.fetchall()
         connection.commit()
         print('SELECTED', len(records))

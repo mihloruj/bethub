@@ -51,6 +51,21 @@ class CreateUserForms(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2']
 
 
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if email and User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Такой адрес электронной почты уже зарегистрирован.')
+        else:
+            return email
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if username and User.objects.filter(username=username).exists():
+            raise forms.ValidationError('Логин '+username+' уже занят. ')
+        else:
+            return username
+
+
 class UserChangePassword(PasswordChangeForm):
     old_password = forms.CharField(
         required=True,

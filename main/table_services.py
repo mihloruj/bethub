@@ -145,6 +145,14 @@ def getLastMatches(country):
         return Match.objects.all().order_by('-id')[:10:1]
     else:
         return Match.objects.filter(league_name__in = getSelectedLeagues(country)).order_by('-id')[:10:1]
+
+
+def getLastMatchesByLigname(country, ligname):
+    if country == 'Все континенты' or country == None:
+        return Match.objects.filter(league_name__istartswith=ligname).order_by('-id')[:10:1]
+    else:
+        return Match.objects.filter(league_name__in = getSelectedLeagues(country),
+                                    league_name__istartswith=ligname).order_by('-id')[:10:1]
     
 
 # Формирует статистику коллекции матчей на основе всех фильтров

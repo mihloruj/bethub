@@ -33,22 +33,38 @@ def getAllInfoAboutNextMatches(url):
         matches = []
         html = BeautifulSoup(response.text, 'html.parser')
         all_tbody = html.find_all('tbody')
+        last_date = dt.datetime.now().date()
+        stop = False
+        time_end = '02:00'
         for body in all_tbody:
-            all_tr = body.find_all('tr', attrs={'data-def': 1})
-            match_liga = body.find('a', 'table-main__tournament').text
-            for tr in all_tr:
-                match_link = BASE_SITE_URL+tr.find('a')['href']
-                match_name = getMatchName(tr.find('a'))
-                match_time = getCorrectTime(tr.find('span', 'table-main__time').text)
-                
-                result = {
-                        "link": match_link,
-                        "name": match_name,
-                        "liga": match_liga,
-                        "time": match_time
-                    }
-                matches.append(result)
-                #print(match_liga, match_name, match_time)
+            if not stop:
+                all_tr = body.find_all('tr', attrs={'data-def': 1})
+                match_liga = body.find('a', 'table-main__tournament').text
+                for tr in all_tr:
+                    try:
+                        match_date = dt.datetime.strptime('-'.join(tr['data-dt'].split(',')[:-2]), '%d-%m-%Y').date()
+                        match_link = BASE_SITE_URL+tr.find('a')['href']
+                        match_name = getMatchName(tr.find('a'))
+                        match_time = getCorrectTime(tr.find('span', 'table-main__time').text)
+                        result = {
+                            "link": match_link,
+                            "name": match_name,
+                            "liga": match_liga,
+                            "time": match_time
+                        }
+                        if (match_date == last_date and match_time != time_end):
+                            matches.append(result)
+                            print(match_date, match_name, match_time)
+                        elif (match_date != last_date and match_time == time_end):
+                            matches.append(result)
+                            print(match_date, match_name, match_time)
+                        elif (match_date != last_date and match_time != time_end):
+                            stop = True
+                            break
+                    except Exception as e:
+                        print(e)
+            else:
+                break
         return matches
     else:
         print('ERROR: page is not available, code', response.status_code)
@@ -66,13 +82,15 @@ def pullDataToDB(data):
         print("INFO: connection is opened")
         if data != None:
             cursor = connection.cursor()
-            cursor.execute('TRUNCATE TABLE main_nextmatch;')
-            print('TRUNCATE TABLE main_nextmatch')
+            cursor.execute('DELETE FROM main_nextmatch WHERE old is true;')
+            print('DALETE ROWS IN TABLE main_nextmatch')
+            cursor.execute('UPDATE main_nextmatch SET old = TRUE;')
+            print('UPDATE ROWS IN TABLE main_nextmatch')
             for d in data:
-                cursor.execute('INSERT INTO main_nextmatch(url, league_name, match_name, time) VALUES (%s,%s,%s,%s);', 
+                cursor.execute('INSERT INTO main_nextmatch(url, league_name, match_name, time, old) VALUES (%s,%s,%s,%s, false);', 
                 (d['link'],d['liga'],d['name'],d['time']))
             connection.commit()
-            print('INSERT INTO main_nextmatch', len(data))
+            print('INSERT INTO main_nextmatch', len(data), 'ROWS')
             print("INFO: data loaded successfully")
     except (Exception, psycopg2.Error) as error :
         print ("ERROR: error while connecting to PostgreSQL", error)

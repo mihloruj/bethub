@@ -7,18 +7,20 @@
 
 {% block style %}
 <link rel="stylesheet" type="text/css" href="{% static 'loggining/css/loggining.css' %}">
+<script src="https://kit.fontawesome.com/8a28303197.js" crossorigin="anonymous"></script>
 {% endblock %}
 
 {% block content%}
-<div class="text-center bg-dark bg-gradient pt-4" style="height: 100vh;">
-
-    <form class="form-signin" method="POST" action="" style="max-width: 330px; margin: auto; margin-top: 40px;">
+<div class="pt-4 px-3 min-vh-100" style="background-color: #607992;">
+    <a href="{% url 'index' %}" class="btn btn-lg btn-custom-dark shadow text-white ml-lg-5"><i
+        class="fas fa-arrow-alt-circle-left mr-2"></i>На главную</a>
+    <form class="form-signin text-center bg-white rounded shadow mx-auto mt-4 px-5 py-3" method="POST" action=""
+        style="max-width: 460px;">
         {% csrf_token%}
-        <h5 class="mb-3 font-weight-light text-white"><span class="text-success h4">{{user.username}}</span>, остался последний шаг!</h5>
-        <h3 class="mb-3 font-weight-normal text-white">Выбор подписки</h3>
+        <h5 class="mb-3 font-weight-light"><span class="h4" style="color: #485766;">{{user.username}}</span>, остался последний шаг!</h5>
+        <h3 class="mb-3 font-weight-normal">Выбор подписки</h3>
 
         <div class="form-group">
-            <label class="mb-2 text-success " for="SelectSub">Выберите подписку</label>
             <select class="form-control form-control-lg selectCenter" id="SelectSub" name="selectsub">
                 {% for sub in Subs %}
                 <option value="{{ sub.name }}" price="{{ sub.price }}" period="{{ sub.period }}">{{ sub.description }}</option>
@@ -30,17 +32,17 @@
             <div id="cardSubTitle" class="card-header">
                 Оформление подписки (без оплаты!)
             </div>
-            <div class="card-body">
+            <div class="card-body pb-1">
                 <div class="mb-3">
                     <span id="cardSubPrice" class="card-text h1"></span>
                     <span class="h1">$</span>
                 </div>
                 <div class="row">
-                    <button type="submit" class="btn btn-lg btn-success btn-block">Оформить</a>
+                    <button type="submit" class="btn btn-lg btn-custom-dark text-white btn-block">Оформить</a>
                 </div>
             </div>
         </div>
-        <div>
+        <div class="mt-2">
             <a href="{% url 'index' %}" class="ml-2 link-success">Я еще не решился...</a>
         </div>
     </form>
